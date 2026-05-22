@@ -1,0 +1,413 @@
+/* =============================================================================
+   MANAGE CATEGORIES — manage_categories.js (API-backed)
+   ============================================================================= */
+
+(async () => {
+  /* ── 1. Auth gate ── */
+  const session = Auth.requireSession(["super_user"]);
+  if (!session) return;
+
+  /* ── 2. State ── */
+  let categories = [];
+  const PAGE_SIZE = 8;
+  let currentPage = 1;
+  let filteredCategories = [];
+  let tableActionsBound = false;
+  let editingId = null;
+  let deletingId = null;
+
+  /* ── Load categories from API ── */
+  async function refreshCategories() {
+    try {
+      const raw = await Api.get("/categories");
+      categories = transformCategories(raw || []);
+      filteredCategories = categories.slice();
+    } catch (err) {
+      console.error("[categories] Failed to load:", err);
+      categories = [];
+      filteredCategories = [];
+    }
+  }
+
+  /* ── 3. Transform and enrich categories ── */
+  function transformCategories(categoriesList) {
+    return categoriesList.map((cat, idx) => {
+      const status = cat.is_available ? "Active" : "Inactive";
+      return {
+        categoryId: cat.category_id,
+        id: parseInt(cat.category_id.replace("CAT", "")) || idx + 1,
+        name: cat.category_name,
+        desc: cat.description || "",
+        rating:
+          typeof cat.average_rating === "number" && (cat.rating_count || 0) > 0
+            ? cat.average_rating
+            : null,
+        status: status,
+        isAvailable: cat.is_available,
+        parentId: cat.parent_id || null,
+      };
+    });
+  }
+
+  /* ── helpers ── */
+  function truncate(str, n = 55) {
+    return (str || "").length > n ? str.slice(0, n) + "…" : str || "";
+  }
+
+  function updateKPIs(data) {
+    const active = data.filter((c) => c.status === "Active").length;
+    const inactive = data.filter((c) => c.status === "Inactive").length;
+    const validRatings = data.filter((c) => typeof c.rating === "number");
+    const avgRating =
+      validRatings.length > 0
+        ? (
+            validRatings.reduce((sum, c) => sum + c.rating, 0) /
+            validRatings.length
+          ).toFixed(2)
+        : "N/A";
+
+    const kpiTotal = document.getElementById("kpiTotal");
+    const kpiActive = document.getElementById("kpiActive");
+    const kpiInactive = document.getElementById("kpiInactive");
+    const kpiAvgRating = document.getElementById("kpiAvgRating");
+
+    if (kpiTotal) kpiTotal.textContent = categories.length;
+    if (kpiActive) kpiActive.textContent = active;
+    if (kpiInactive) kpiInactive.textContent = inactive;
+    if (kpiAvgRating) kpiAvgRating.textContent = avgRating;
+  }
+
+  /* ── table ── */
+  function renderTable(data) {
+    const tbody = document.getElementById("categoriesTableBody");
+    if (!tbody) return;
+    tbody.innerHTML = "";
+
+    const totalRows = data.length;
+    const totalPages = Math.max(1, Math.ceil(totalRows / PAGE_SIZE));
+    if (currentPage > totalPages) currentPage = totalPages;
+    if (currentPage < 1) currentPage = 1;
+
+    const start = (currentPage - 1) * PAGE_SIZE;
+    const pageRows = data.slice(start, start + PAGE_SIZE);
+
+    if (totalRows === 0) {
+      tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:32px;color:var(--text-faint)">No categories found matching your filters.</td></tr>`;
+    } else {
+      pageRows.forEach((cat, idx) => {
+        const tr = document.createElement("tr");
+        tr.style.animationDelay = idx * 0.04 + "s";
+        const statusClass =
+          cat.status === "Active"
+            ? "status-badge--active"
+            : "status-badge--inactive";
+
+        tr.innerHTML = `
+          <td class="category-name-col">${cat.name}</td>
+          <td class="desc-cell" title="${cat.desc}">${truncate(cat.desc)}</td>
+          <td>
+            <span class="status-badge ${statusClass}">${cat.status}</span>
+          </td>
+          <td class="rating-cell" title="${typeof cat.rating === "number" ? cat.rating + " / 5.0" : "No rating"}">${typeof cat.rating === "number" ? cat.rating.toFixed(2) + " ⭐" : "N/A"}</td>
+          <td>
+            <div class="tbl-actions">
+              <button class="tbl-icon-btn btn-edit" data-id="${cat.id}" title="Edit Category">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+              </button>
+              <button class="tbl-icon-btn btn-delete" data-category-id="${cat.categoryId}" title="Delete Category">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    /* footer */
+    const active = data.filter((c) => c.status === "Active").length;
+    const tableFooter = document.getElementById("tableFooter");
+    if (tableFooter) {
+      const shownEnd = Math.min(start + PAGE_SIZE, totalRows);
+      const shownText =
+        totalRows === 0
+          ? "Showing 0-0 of 0"
+          : `Showing ${start + 1}-${shownEnd} of ${totalRows}`;
+
+      const pageButtons = Array.from({ length: totalPages }, (_, i) => i + 1)
+        .map(
+          (pageNum) =>
+            `<button class="page-btn ${pageNum === currentPage ? "active" : ""}" data-page="${pageNum}" type="button">${pageNum}</button>`,
+        )
+        .join("");
+
+      tableFooter.innerHTML = `
+        <div class="table-meta">
+          <span>${shownText}</span> · <span class="active-count">${active} active</span>
+        </div>
+        <div class="pagination-wrap">
+          <button class="page-arrow" data-page-action="prev" type="button" ${currentPage <= 1 ? "disabled" : ""}>‹</button>
+          <div class="page-numbers">${pageButtons}</div>
+          <button class="page-arrow" data-page-action="next" type="button" ${currentPage >= totalPages ? "disabled" : ""}>›</button>
+        </div>
+      `;
+
+      tableFooter.querySelectorAll(".page-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          currentPage = Number(btn.dataset.page);
+          renderTable(data);
+        });
+      });
+
+      const prevBtn = tableFooter.querySelector('[data-page-action="prev"]');
+      const nextBtn = tableFooter.querySelector('[data-page-action="next"]');
+
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          if (currentPage > 1) {
+            currentPage -= 1;
+            renderTable(data);
+          }
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          if (currentPage < totalPages) {
+            currentPage += 1;
+            renderTable(data);
+          }
+        });
+      }
+    }
+  }
+
+  function bindTableActions() {
+    if (tableActionsBound) return;
+
+    const tbody = document.getElementById("categoriesTableBody");
+    if (!tbody) return;
+
+    tbody.addEventListener("click", (event) => {
+      const btn = event.target.closest("button");
+      if (!btn) return;
+
+      if (btn.classList.contains("btn-edit")) {
+        const cat = categories.find((c) => c.id === parseInt(btn.dataset.id));
+        if (cat) openModal(cat);
+        return;
+      }
+
+      if (btn.classList.contains("btn-delete")) {
+        const cat = categories.find(
+          (c) => c.categoryId === btn.dataset.categoryId,
+        );
+        if (cat) openDeleteModal(cat);
+      }
+    });
+
+    tableActionsBound = true;
+  }
+
+  /* ── filters ── */
+  function applyFilters(resetPage = true) {
+    const search =
+      document.getElementById("categorySearch")?.value.toLowerCase() || "";
+    filteredCategories = categories.filter((cat) => {
+      const matchSearch =
+        cat.name.toLowerCase().includes(search) ||
+        (cat.desc || "").toLowerCase().includes(search);
+      return matchSearch;
+    });
+    if (resetPage) currentPage = 1;
+    renderTable(filteredCategories);
+    updateKPIs(filteredCategories);
+  }
+
+  /* ── populate parent category dropdown ── */
+  function populateParentDropdown() {
+    const select = document.getElementById("categoryParent");
+    if (!select) return;
+
+    const currentValue = select.value;
+    let options = select.querySelectorAll("option");
+    while (options.length > 1) {
+      options[1].remove();
+      options = select.querySelectorAll("option");
+    }
+
+    categories.forEach((cat) => {
+      if (editingId === null || cat.categoryId !== editingId) {
+        const option = document.createElement("option");
+        option.value = cat.categoryId;
+        option.textContent = cat.name;
+        select.appendChild(option);
+      }
+    });
+  }
+
+  /* ── add/edit modal ── */
+  function openModal(cat) {
+    editingId = cat ? cat.categoryId : null;
+    const modalTitle = document.getElementById("modalTitle");
+    const categoryName = document.getElementById("categoryName");
+    const categoryDesc = document.getElementById("categoryDesc");
+    const categoryStatus = document.getElementById("categoryStatus");
+    const categoryParent = document.getElementById("categoryParent");
+    const btnSaveEl = document.getElementById("btnSave");
+    const modalOverlay = document.getElementById("modalOverlay");
+    const statusText = document.getElementById("statusText");
+
+    populateParentDropdown();
+
+    if (modalTitle)
+      modalTitle.textContent = cat ? "Edit Category" : "Add New Category";
+    if (categoryName) categoryName.value = cat ? cat.name : "";
+    if (categoryDesc) categoryDesc.value = cat ? cat.desc : "";
+    if (categoryStatus) categoryStatus.checked = cat ? cat.isAvailable : true;
+    if (statusText)
+      statusText.textContent = (cat ? cat.isAvailable : true)
+        ? "Active"
+        : "Inactive";
+    if (categoryParent)
+      categoryParent.value = cat && cat.parentId ? cat.parentId : "";
+    if (btnSaveEl) btnSaveEl.textContent = cat ? "Save Changes" : "Add Category";
+    if (modalOverlay) modalOverlay.classList.add("open");
+
+    if (categoryStatus) {
+      categoryStatus.addEventListener("change", function () {
+        if (statusText)
+          statusText.textContent = this.checked ? "Active" : "Inactive";
+      });
+    }
+  }
+
+  function closeModal() {
+    const modalOverlay = document.getElementById("modalOverlay");
+    if (modalOverlay) modalOverlay.classList.remove("open");
+  }
+
+  function openDeleteModal(cat) {
+    deletingId = cat.categoryId;
+    const deleteCategoryName = document.getElementById("deleteCategoryName");
+    if (deleteCategoryName) deleteCategoryName.textContent = cat.name;
+    const deleteOverlay = document.getElementById("deleteOverlay");
+    if (deleteOverlay) deleteOverlay.classList.add("open");
+  }
+
+  function closeDeleteModal() {
+    const deleteOverlay = document.getElementById("deleteOverlay");
+    if (deleteOverlay) deleteOverlay.classList.remove("open");
+  }
+
+  function showToast(msg) {
+    if (window.Api && Api.showToast) {
+      Api.showToast(msg, "success");
+    } else {
+      const toast = document.getElementById("toast");
+      if (toast) {
+        toast.textContent = msg;
+        toast.classList.add("show");
+        setTimeout(() => toast.classList.remove("show"), 3000);
+      }
+    }
+  }
+
+  /* ── Event listeners ── */
+  const btnAddCategory = document.getElementById("btnAddCategory");
+  const modalClose = document.getElementById("modalClose");
+  const btnCancel = document.getElementById("btnCancel");
+  const btnSave = document.getElementById("btnSave");
+  const modalOverlay = document.getElementById("modalOverlay");
+  const deleteClose = document.getElementById("deleteClose");
+  const deleteCancelBtn = document.getElementById("deleteCancelBtn");
+  const deleteConfirmBtn = document.getElementById("deleteConfirmBtn");
+  const deleteOverlay = document.getElementById("deleteOverlay");
+
+  if (btnAddCategory)
+    btnAddCategory.addEventListener("click", () => openModal(null));
+  if (modalClose) modalClose.addEventListener("click", closeModal);
+  if (btnCancel) btnCancel.addEventListener("click", closeModal);
+  if (modalOverlay) {
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeModal();
+    });
+  }
+  if (deleteClose) deleteClose.addEventListener("click", closeDeleteModal);
+  if (deleteCancelBtn)
+    deleteCancelBtn.addEventListener("click", closeDeleteModal);
+  if (deleteOverlay) {
+    deleteOverlay.addEventListener("click", (e) => {
+      if (e.target === e.currentTarget) closeDeleteModal();
+    });
+  }
+
+  if (deleteConfirmBtn) {
+    deleteConfirmBtn.addEventListener("click", async () => {
+      if (!deletingId) return;
+
+      try {
+        await Api.del("/categories/" + deletingId);
+        await refreshCategories();
+        showToast("Category deleted successfully");
+      } catch (err) {
+        console.error("[categories] Delete failed:", err);
+      }
+
+      closeDeleteModal();
+      applyFilters();
+    });
+  }
+
+  if (btnSave) {
+    btnSave.addEventListener("click", async () => {
+      const name = document.getElementById("categoryName")?.value.trim();
+      const desc = document.getElementById("categoryDesc")?.value.trim();
+      const isAvailable =
+        document.getElementById("categoryStatus")?.checked || false;
+      const parentId = document.getElementById("categoryParent")?.value || null;
+
+      if (!name) {
+        Api.showToast("Category name is required", "warn");
+        return;
+      }
+      if (!desc) {
+        Api.showToast("Description is required", "warn");
+        return;
+      }
+
+      const payload = {
+        category_name: name,
+        description: desc,
+        is_available: isAvailable,
+        parent_id: parentId && parentId !== "" ? parentId : null,
+      };
+
+      try {
+        if (editingId) {
+          await Api.patch("/categories/" + editingId, payload);
+          showToast(`"${name}" updated successfully`);
+        } else {
+          await Api.post("/categories", payload);
+          showToast(`"${name}" added to category catalog`);
+        }
+
+        await refreshCategories();
+      } catch (err) {
+        console.error("[categories] Save failed:", err);
+      }
+
+      closeModal();
+      applyFilters();
+    });
+  }
+
+  const categorySearch = document.getElementById("categorySearch");
+  if (categorySearch) categorySearch.addEventListener("input", () => applyFilters());
+
+  /* ── Initialize ── */
+  await refreshCategories();
+  bindTableActions();
+  renderTable(categories);
+  updateKPIs(categories);
+})();

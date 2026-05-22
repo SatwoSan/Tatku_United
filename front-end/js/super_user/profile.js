@@ -1,0 +1,232 @@
+/* profile.js — Super User Profile — API-backed */
+
+(async () => {
+  /* ── 1. Auth gate ── */
+  const session = Auth.requireSession(["super_user"]);
+  if (!session) return;
+
+  const currentUser = Auth.getCurrentUser();
+
+  /* ── 2. Fetch data from API ── */
+  let suRecord = null;
+  suRecord  = await Api.get("/super-users/" + session.id);
+
+  let collectivesCount = 0;
+  let unitsCount = 0;
+  try {
+    const collectives = await Api.get("/collectives", { silent: true }) || [];
+    collectivesCount = collectives.length;
+  } catch (_) {}
+  try {
+    const units = await Api.get("/units", { silent: true }) || [];
+    unitsCount = units.filter(u => u.is_active).length;
+  } catch (_) {}
+
+  let totalUsers = 0;
+  try {
+    const [customers, providers, ums, cms] = await Promise.all([
+      Api.get("/customers"),
+      Api.get("/service-providers"),
+      Api.get("/unit-managers"),
+      Api.get("/collective-managers"),
+    ]);
+    totalUsers = (customers || []).length + (providers || []).length +
+                 (ums || []).length + (cms || []).length + 1;
+  } catch (_) {}
+
+  const permissions = [
+    { name: "Full User Management", desc: "Create, suspend, delete any account", cls: "" },
+    { name: "Platform Configuration", desc: "Modify all system settings", cls: "" },
+    { name: "Financial Controls", desc: "Access revenue, payout & billing data", cls: "" },
+    { name: "Security Administration", desc: "Manage roles, sessions & 2FA enforcement", cls: "" },
+    { name: "Audit Log Access", desc: "View complete system event history", cls: "" },
+    { name: "Emergency Overrides", desc: "Force-terminate jobs and escalate issues", cls: "yellow" },
+  ];
+
+  /* ── 5. Render functions ── */
+  function renderPermissions() {
+    const el = document.getElementById("perm-list");
+    if (!el) return;
+    el.innerHTML = permissions
+      .map(
+        (p) => `
+      <div class="perm-item ${p.cls}">
+        <div class="perm-check">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <div>
+          <div class="perm-name">${p.name}</div>
+          <div class="perm-desc">${p.desc}</div>
+        </div>
+      </div>
+    `,
+      )
+      .join("");
+  }
+
+  function syncName() {
+    const v = document.getElementById("full-name")?.value.trim();
+    const heroName = document.getElementById("hero-name");
+    const topbarName = document.getElementById("topbar-name");
+    if (heroName) heroName.textContent = v || "Super User";
+    if (topbarName) topbarName.textContent = v || "Super User";
+  }
+
+  function syncEmail() {
+    const v = document.getElementById("email")?.value.trim();
+    const heroEmail = document.getElementById("hero-email");
+    if (heroEmail) heroEmail.textContent = v || "super_user@tatku.com";
+  }
+
+  async function saveSection(section) {
+    if (section === "personal") {
+      const name = (document.getElementById("full-name")?.value || "").trim();
+      const rawPhone = (document.getElementById("phone")?.value || "").trim();
+
+      if (!name) { showToast("Name cannot be empty."); return; }
+      if (rawPhone && !/^\d{10}$/.test(rawPhone)) { showToast("Phone must be exactly 10 digits."); return; }
+
+      try {
+        await Api.patch("/super-users/" + session.id, { name, phone: rawPhone });
+        if (suRecord) { suRecord.name = name; suRecord.phone = rawPhone; }
+        syncName();
+        syncEmail();
+        showToast("Super User profile saved successfully ✓");
+      } catch (err) {
+        showToast("Failed to save profile.");
+      }
+      return;
+    }
+    showToast("Changes saved!");
+  }
+
+  function openPwdModal() {
+    const pwdModal = document.getElementById("pwd-modal");
+    if (pwdModal) pwdModal.classList.add("open");
+  }
+
+  function closePwdModal(e) {
+    if (e.target === document.getElementById("pwd-modal")) closePwdModalBtn();
+  }
+
+  function closePwdModalBtn() {
+    const pwdModal = document.getElementById("pwd-modal");
+    if (pwdModal) pwdModal.classList.remove("open");
+    const fields = ["pwd-current", "pwd-new", "pwd-confirm"];
+    fields.forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.value = "";
+    });
+  }
+
+  async function handlePasswordChange() {
+    const currentPwd = document.getElementById("pwd-current")?.value;
+    const newPwd = document.getElementById("pwd-new")?.value;
+    const confirmPwd = document.getElementById("pwd-confirm")?.value;
+
+    if (!currentPwd || !newPwd || !confirmPwd) { showToast("Please fill in all password fields."); return; }
+    if (newPwd !== confirmPwd) { showToast("New passwords do not match."); return; }
+    if (newPwd.length < 12) { showToast("New password must be at least 12 characters."); return; }
+
+    const res = await Auth.changePassword(currentPwd, newPwd);
+    if (res.success) {
+      showToast("Password updated successfully!");
+      closePwdModalBtn();
+    } else {
+      const errorMap = {
+        invalid_current_password: "Current password is incorrect.",
+        not_logged_in: "Session expired. Please log in again.",
+      };
+      showToast(errorMap[res.error] || "Failed to update password.");
+    }
+  }
+
+  // Export to window for HTML onclick/oninput handlers
+  window.openPwdModal = openPwdModal;
+  window.closePwdModal = closePwdModal;
+  window.closePwdModalBtn = closePwdModalBtn;
+  window.handlePasswordChange = handlePasswordChange;
+  window.syncName = syncName;
+  window.syncEmail = syncEmail;
+  window.saveSection = saveSection;
+  window.updateAvatar = updateAvatar;
+
+  function updateAvatar(input) {
+    if (!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    if (!file.type.startsWith("image/")) { showToast("Please choose a valid image file."); return; }
+    if (file.size > 2 * 1024 * 1024) { showToast("Profile photo must be under 2 MB."); return; }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const imageData = e.target.result;
+      const res = Auth.updateProfilePicture(imageData);
+      if (!res.success) { showToast("Unable to update profile photo."); return; }
+
+      if (currentUser) currentUser.pfp_url = imageData;
+      const av = document.getElementById("profile-avatar");
+      if (av) av.innerHTML = `<img src="${imageData}" alt="Super User" />`;
+      showToast("Profile photo updated ✓");
+    };
+    reader.readAsDataURL(file);
+  }
+
+  let toastTimer;
+  function showToast(msg) {
+    const toast = document.getElementById("toast");
+    if (toast) {
+      toast.textContent = msg;
+      toast.classList.add("show");
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => toast.classList.remove("show"), 3000);
+    }
+  }
+
+  /* ── Event Listeners ── */
+  const fullNameInput = document.getElementById("full-name");
+  const emailInput = document.getElementById("email");
+  if (fullNameInput) fullNameInput.addEventListener("input", syncName);
+  if (emailInput) emailInput.addEventListener("input", syncEmail);
+
+  /* ── Initialize ── */
+  // Notification badges — no-op until API endpoint exists
+  document.querySelectorAll(".notif-badge").forEach((badge) => {
+    badge.textContent = "";
+    badge.style.display = "none";
+  });
+
+  if (currentUser) {
+    const nameEl = document.getElementById("full-name");
+    const emailEl = document.getElementById("email");
+    const phoneEl = document.getElementById("phone");
+    const idEl = document.getElementById("super-user-id");
+    const dataSrc = suRecord || currentUser;
+
+    if (nameEl) nameEl.value = dataSrc.name || "";
+    if (emailEl) emailEl.value = dataSrc.email || "";
+
+    const rawPhone = dataSrc.phone || "";
+    if (phoneEl) phoneEl.value = String(rawPhone).replace(/\D/g, "").slice(-10);
+    if (idEl) idEl.value = dataSrc.super_user_id || dataSrc.id || "";
+
+    const avatarEl = document.getElementById("profile-avatar");
+    if (avatarEl && dataSrc.pfp_url) {
+      avatarEl.innerHTML = `<img src="${dataSrc.pfp_url}" alt="Super User" style="border-radius:50%;width:100%;height:100%;object-fit:cover;" />`;
+    }
+    syncName();
+    syncEmail();
+  }
+
+  // Populate Hero Stats from API data
+  const collEl = document.getElementById("hero-collectives");
+  const unitsEl = document.getElementById("hero-units");
+  const usersEl = document.getElementById("hero-users");
+
+  if (collEl) collEl.textContent = collectivesCount;
+  if (unitsEl) unitsEl.textContent = unitsCount;
+  if (usersEl) usersEl.textContent = totalUsers;
+
+  renderPermissions();
+})();

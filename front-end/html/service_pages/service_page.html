@@ -1,0 +1,595 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Service Details – Tatku United</title>
+    <link rel="stylesheet" href="../../css/service_pages/service_page.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar">
+      <div class="nav-inner">
+        <a href="service_discovery.html" class="logo">
+          <span class="logo-badge">TU</span>
+          <span class="logo-name">Tatku United</span>
+        </a>
+        <ul class="nav-links">
+          <li><a href="../landing_page.html">Home</a></li>
+          <li><a href="service_discovery.html">Services</a></li>
+          <li><a href="../landing_page.html#smarter">About</a></li>
+        </ul>
+        <div class="nav-auth">
+          <a href="../auth_pages/login.html" class="btn-login">Login</a>
+          <a href="../auth_pages/register.html" class="btn-register"
+            >Register</a
+          >
+        </div>
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu">
+          <span></span><span></span><span></span>
+        </button>
+      </div>
+      <div class="mobile-menu" id="mobileMenu">
+        <ul>
+          <li><a href="../landing_page.html">Home</a></li>
+          <li><a href="service_discovery.html">Services</a></li>
+          <li><a href="../landing_page.html#smarter">About</a></li>
+          <li><a href="../auth_pages/login.html">Login</a></li>
+          <li><a href="../auth_pages/register.html">Register</a></li>
+        </ul>
+      </div>
+    </nav>
+
+    <!-- SERVICE HERO -->
+    <section class="svc-hero">
+      <div class="container">
+        <div class="svc-hero-grid">
+          <div class="svc-hero-left">
+            <h1 class="svc-title">Loading service...</h1>
+            <div class="svc-meta">
+              <span class="star-icon">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+              </span>
+              <strong>--</strong>
+              <span class="svc-reviews">(-- reviews)</span>
+            </div>
+            <ul class="svc-bullets">
+              <li>Loading service highlights...</li>
+            </ul>
+            <div class="svc-pricing">
+              <span class="svc-price">--</span>
+              <span class="svc-duration">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <path d="M12 6v6l4 2" />
+                </svg>
+                --
+              </span>
+            </div>
+            <button class="btn-book-now" id="btnBookNow">Add to Cart</button>
+          </div>
+          <div class="svc-hero-right">
+            <div class="svc-hero-img-wrap">
+              <img
+                src="https://placehold.co/1200x800?text=Loading"
+                alt="Loading service image"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- HOW IT WORKS + EXPERT CLEANERS -->
+    <section class="section hiw-section">
+      <div class="container">
+        <div class="hiw-grid">
+          <!-- Left: How it works -->
+          <div class="hiw-left">
+            <h2 class="block-heading">How it works?</h2>
+            <div class="steps-list"></div>
+          </div>
+
+          <!-- Right: Expert cleaners + Damage protection -->
+          <div class="hiw-right">
+            <div class="trust-card">
+              <h2 class="block-heading">Expert cleaners</h2>
+              <ul class="trust-list">
+                <li>
+                  <span class="trust-icon">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                    </svg>
+                  </span>
+                  Trained for 100+ hours
+                </li>
+                <li>
+                  <span class="trust-icon">
+                    <svg
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                    >
+                      <path
+                        d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                      />
+                    </svg>
+                  </span>
+                  Live customer ratings
+                </li>
+                <li>
+                  <span class="trust-icon">
+                    <svg
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
+                      <circle cx="9" cy="7" r="4" />
+                      <path
+                        d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
+                      />
+                    </svg>
+                  </span>
+                  Verified by TU
+                </li>
+              </ul>
+            </div>
+
+            <div class="damage-card">
+              <div class="damage-left">
+                <h2 class="block-heading">Damage protection</h2>
+                <p>Up to ₹6,000 cover if any damage happens during the job</p>
+              </div>
+              <div class="damage-icon">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="1.8"
+                >
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+                  <polyline points="9 22 9 12 15 12 15 22" />
+                </svg>
+                <div class="damage-check">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="white"
+                    stroke-width="3"
+                  >
+                    <path d="M20 6L9 17l-5-5" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- COVERED / NOT COVERED -->
+    <section class="section coverage-section">
+      <div class="container">
+        <div class="coverage-grid">
+          <div class="coverage-card covered">
+            <h2>What is Covered</h2>
+            <ul>
+              <li>
+                <span class="cov-icon yes"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" /></svg
+                ></span>
+                Interior Cleaning: Removal of food particles, splatters, and
+                grease from walls, top, and floor.
+              </li>
+              <li>
+                <span class="cov-icon yes"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" /></svg
+                ></span>
+                Turntable &amp; Components: Removal and cleaning of the glass
+                tray, roller ring, and any accessible racks.
+              </li>
+              <li>
+                <span class="cov-icon yes"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" /></svg
+                ></span>
+                Exterior Cleaning: Wiping down the exterior body, door, handle,
+                and control panel to remove fingerprints and grease.
+              </li>
+              <li>
+                <span class="cov-icon yes"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" /></svg
+                ></span>
+                Odor Removal: Deodorizing the unit to eliminate smells from
+                previous cooking.
+              </li>
+              <li>
+                <span class="cov-icon yes"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" /></svg
+                ></span>
+                Eco-Friendly/Non-Toxic Agents: Use of safe cleaning solutions,
+                often steam cleaning methods using water, vinegar, or citrus to
+                break down grime.
+              </li>
+              <li>
+                <span class="cov-icon yes"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M20 6L9 17l-5-5" /></svg
+                ></span>
+                Inspection: A final check to ensure the appliance is clean and
+                operational.
+              </li>
+            </ul>
+          </div>
+
+          <div class="coverage-card not-covered">
+            <h2>What is NOT Covered</h2>
+            <ul>
+              <li>
+                <span class="cov-icon no"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" /></svg
+                ></span>
+                Repairs &amp; Technical Fixes: No mechanical or electrical
+                repairs, such as fixing non-functional keypads, replacing
+                magnetrons, or fixing wiring.
+              </li>
+              <li>
+                <span class="cov-icon no"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" /></svg
+                ></span>
+                Internal Disassembly: Cleaning does not involve opening up the
+                machine to clean internal, hidden components or motor areas.
+              </li>
+              <li>
+                <span class="cov-icon no"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" /></svg
+                ></span>
+                Old/Permanent Stains: While cleaners try their best, there is
+                usually no guarantee that deeply burned, carbonized, or
+                long-term stains will be completely removed, particularly on
+                older appliances.
+              </li>
+              <li>
+                <span class="cov-icon no"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" /></svg
+                ></span>
+                Paint or Structural Damage: Removal of paint stains, cement, or
+                fixing damaged, rusted, or chipped interiors.
+              </li>
+              <li>
+                <span class="cov-icon no"
+                  ><svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.5"
+                  >
+                    <path d="M18 6L6 18M6 6l12 12" /></svg
+                ></span>
+                Over-the-Range Vent Maintenance: While some, like Kaff, mention
+                cleaning filters, many general services exclude in-depth
+                cleaning of, or replacement of, carbon filters and duct pipes.
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAQ -->
+    <section class="section faq-section">
+      <div class="container">
+        <h2 class="section-heading centered">Frequently asked questions</h2>
+        <div class="faq-list" id="faqList"></div>
+      </div>
+    </section>
+
+    <!-- ALL REVIEWS -->
+    <section class="section reviews-section">
+      <div class="container">
+        <h2 class="section-heading">All Reviews</h2>
+
+        <div class="reviews-layout">
+          <div class="reviews-main">
+            <!-- Filter tabs -->
+            <div class="review-filters">
+              <button class="filter-tab active" data-filter="recent">
+                Most recent
+              </button>
+              <button class="filter-tab" data-filter="oldest">Oldest</button>
+              <button class="filter-tab" data-filter="area">In my area</button>
+              <button class="filter-tab" data-filter="detailed">
+                Most detailed
+              </button>
+            </div>
+
+            <!-- Star quick filters -->
+            <div class="star-filters">
+              <button class="star-filter active" data-stars="0">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+                5
+              </button>
+              <button class="star-filter" data-stars="4">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+                4
+              </button>
+              <button class="star-filter" data-stars="3">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+                3
+              </button>
+              <button class="star-filter" data-stars="2">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+                2
+              </button>
+              <button class="star-filter" data-stars="1">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+                1
+              </button>
+            </div>
+
+            <!-- Review cards -->
+            <div class="review-list" id="reviewList"></div>
+          </div>
+
+          <!-- Review summary sidebar -->
+          <aside class="reviews-sidebar">
+            <div class="overall-score">
+              <div class="overall-stars">
+                <svg viewBox="0 0 20 20" fill="#f5a623">
+                  <path
+                    d="M10 15l-5.878 3.09 1.123-6.545L.489 6.91l6.572-.955L10 0l2.939 5.955 6.572.955-4.756 4.635 1.123 6.545z"
+                  />
+                </svg>
+              </div>
+              <span class="overall-num">--</span>
+              <span class="overall-count">-- reviews</span>
+            </div>
+            <div class="rating-bars">
+              <div class="rating-bar-row">
+                <span class="rb-label">5</span>
+                <div class="rb-track">
+                  <div class="rb-fill" style="width: 0%"></div>
+                </div>
+                <span class="rb-count">0</span>
+              </div>
+              <div class="rating-bar-row">
+                <span class="rb-label">4</span>
+                <div class="rb-track">
+                  <div class="rb-fill" style="width: 0%"></div>
+                </div>
+                <span class="rb-count">0</span>
+              </div>
+              <div class="rating-bar-row">
+                <span class="rb-label">3</span>
+                <div class="rb-track">
+                  <div class="rb-fill" style="width: 0%"></div>
+                </div>
+                <span class="rb-count">0</span>
+              </div>
+              <div class="rating-bar-row">
+                <span class="rb-label">2</span>
+                <div class="rb-track">
+                  <div class="rb-fill" style="width: 0%"></div>
+                </div>
+                <span class="rb-count">0</span>
+              </div>
+              <div class="rating-bar-row">
+                <span class="rb-label">1</span>
+                <div class="rb-track">
+                  <div class="rb-fill" style="width: 0%"></div>
+                </div>
+                <span class="rb-count">0</span>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="container">
+        <div class="footer-grid">
+          <div class="footer-brand">
+            <a href="service_discovery.html" class="logo">
+              <span class="logo-badge">TU</span>
+              <span class="logo-name">Tatku United</span>
+            </a>
+            <p>
+              Revolutionizing local services through high-efficiency collective
+              scheduling and professional excellence.
+            </p>
+          </div>
+
+          <div class="footer-col">
+            <h4>SERVICES</h4>
+            <ul>
+              <li>
+                <a href="category_page.html?categoryId=CAT001">Home Cleaning</a>
+              </li>
+              <li>
+                <a href="category_page.html?categoryId=CAT002">Plumbing</a>
+              </li>
+              <li>
+                <a href="category_page.html?categoryId=CAT003">Electrical</a>
+              </li>
+              <li>
+                <a href="category_page.html?categoryId=CAT005"
+                  >AC &amp; Appliances</a
+                >
+              </li>
+            </ul>
+          </div>
+          <div class="footer-col">
+            <h4>COMPANY</h4>
+            <ul>
+              <li>
+                <a href="../legal/terms-of-service.html">Terms of Service</a>
+              </li>
+              <li><a href="../legal/privacy-policy.html">Privacy Policy</a></li>
+            </ul>
+          </div>
+          <div class="footer-col footer-contact">
+            <h4>CONTACT</h4>
+            <ul>
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z" />
+                  <circle cx="12" cy="10" r="3" />
+                </svg>
+                IIIT Sri City, Andhra Pradesh
+              </li>
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 10.81 19.79 19.79 0 01.01 2.22 2 2 0 012 .04h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 7.91a16 16 0 006.29 6.29l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"
+                  />
+                </svg>
+                +91 72003 63274
+              </li>
+              <li>
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <rect x="2" y="4" width="20" height="16" rx="2" />
+                  <path d="M22 7l-10 7L2 7" />
+                </svg>
+                shricharan.r24@iiits.in
+              </li>
+            </ul>
+          </div>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>
+          © 2026 Service Collective. All rights reserved. Designed for
+          professional reliability.
+        </p>
+      </div>
+    </footer>
+
+    <!-- STICKY BOOK BAR (mobile) -->
+    <div class="sticky-bar" id="stickyBar">
+      <div class="sticky-bar-inner">
+        <div>
+          <span class="sticky-price">--</span>
+          <span class="sticky-duration">--</span>
+        </div>
+        <button class="btn-book-now sticky">Add to Cart</button>
+      </div>
+    </div>
+
+    <script src="../../js/data/store.js"></script>
+    <script src="../../js/modules/auth.js"></script>
+    <script src="../../js/utils/api.js"></script>
+    <script src="../../js/service_pages/service_page.js"></script>
+  </body>
+</html>
