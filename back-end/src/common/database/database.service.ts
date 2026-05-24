@@ -353,7 +353,7 @@ export class DatabaseService implements OnModuleInit {
   constructor() {
     this.supabase = createClient(
       process.env.SUPABASE_URL || 'https://iuvyqajuinkbbxjxvmzr.supabase.co',
-      process.env.SUPABASE_KEY || ''
+      process.env.SUPABASE_KEY || 'dummy_key_to_prevent_crash'
     );
   }
 
