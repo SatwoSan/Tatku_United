@@ -2,6 +2,7 @@ services:
   - type: web
     name: tatku-united-api
     env: node
+    plan: free
     rootDir: back-end
     buildCommand: npm install && npm run build
     startCommand: npm run start:prod
