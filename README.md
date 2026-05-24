@@ -1,6 +1,7 @@
 # Digital Marketplace for Non-Retail Services  
 ## Problem Statement : On-Demand Service Scheduling & Fulfillment System
 
+(Run backend from the backend folder and frontend from the frontend folder)
 ---
 
 ## 1. Project Overview

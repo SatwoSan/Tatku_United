@@ -10,15 +10,9 @@ import { SpIdAliasInterceptor } from './common/interceptors/sp-id-alias.intercep
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  // Allow any localhost port during development
+  // Allow any origin for Vercel deployment
   app.enableCors({
-    origin: (origin, callback) => {
-      if (!origin || /^https?:\/\/(localhost|127\.0\.0\.1|0\.0\.0\.0)(:\d+)?$/.test(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('CORS blocked: ' + origin));
-      }
-    },
+    origin: true,
     credentials: true,
   });
 

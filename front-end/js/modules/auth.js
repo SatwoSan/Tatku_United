@@ -4,9 +4,10 @@
    ============================================================================= */
 
 window.Auth = (() => {
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   const API_BASE_URL =
     window.AUTH_API_BASE_URL ||
-    "http://localhost:10000";
+    (isLocal ? "http://localhost:10000" : "https://tatku-united-api.onrender.com");
 
   const STORAGE_KEYS = {
     token: "tu_auth_token",

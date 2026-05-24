@@ -17,10 +17,10 @@
 window.Api = (() => {
   "use strict";
 
-  // ── Configuration ─────────────────────────────────────────────────────────
+  const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
   const BASE_URL =
     window.API_BASE_URL ||
-    "http://localhost:10000";
+    (isLocal ? "http://localhost:10000" : "https://tatku-united-api.onrender.com");
 
   // UI role → backend role mapping (mirrors Auth.toApiRole)
   function toApiRole(role) {

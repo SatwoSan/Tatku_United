@@ -2,6 +2,7 @@ import { Injectable, OnModuleInit } from '@nestjs/common';
 import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from 'crypto';
 import * as fs from 'fs';
 import * as path from 'path';
+import { createClient, SupabaseClient } from '@supabase/supabase-js';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ENTITY INTERFACES
@@ -347,13 +348,21 @@ export interface PlatformSetting {
 @Injectable()
 export class DatabaseService implements OnModuleInit {
   private readonly DB_PATH = path.join(process.cwd(), 'database.json');
+  private supabase: SupabaseClient;
 
-  onModuleInit() {
-    this.loadFromDisk();
+  constructor() {
+    this.supabase = createClient(
+      process.env.SUPABASE_URL || 'https://iuvyqajuinkbbxjxvmzr.supabase.co',
+      process.env.SUPABASE_KEY || ''
+    );
   }
 
-  save() {
-    console.log('DatabaseService: Attempting to save to disk...');
+  async onModuleInit() {
+    await this.loadFromDisk();
+  }
+
+  async save() {
+    console.log('DatabaseService: Attempting to save to Supabase...');
     try {
       const data = {
         collectives: this.collectives,
@@ -382,46 +391,67 @@ export class DatabaseService implements OnModuleInit {
         reviews: this.reviews,
         platformSettings: this.platformSettings,
       };
-      fs.writeFileSync(this.DB_PATH, JSON.stringify(data, null, 2));
+      
+      const { error } = await this.supabase
+        .storage
+        .from('tatku-db')
+        .upload('database.json', JSON.stringify(data, null, 2), {
+          contentType: 'application/json',
+          upsert: true,
+        });
+
+      if (error) {
+        console.error('Failed to save to Supabase:', error);
+      } else {
+        console.log('Database saved to Supabase successfully.');
+      }
     } catch (err) {
-      console.error('Failed to save database to disk:', err);
+      console.error('Failed to save database to Supabase:', err);
     }
   }
 
-  private loadFromDisk() {
+  private async loadFromDisk() {
     try {
-      if (fs.existsSync(this.DB_PATH)) {
-        const raw = fs.readFileSync(this.DB_PATH, 'utf-8');
-        const data = JSON.parse(raw);
-        if (data.collectives) this.collectives = data.collectives;
-        if (data.sectors) this.sectors = data.sectors;
-        if (data.units) this.units = data.units;
-        if (data.superUsers) this.superUsers = data.superUsers;
-        if (data.collectiveManagers) this.collectiveManagers = data.collectiveManagers;
-        if (data.unitManagers) this.unitManagers = data.unitManagers;
-        if (data.serviceProviders) this.serviceProviders = data.serviceProviders;
-        if (data.providerUnavailability) this.providerUnavailability = data.providerUnavailability;
-        if (data.skills) this.skills = data.skills;
-        if (data.providerSkills) this.providerSkills = data.providerSkills;
-        if (data.customers) this.customers = data.customers;
-        if (data.carts) this.carts = data.carts;
-        if (data.cartItems) this.cartItems = data.cartItems;
-        if (data.categories) this.categories = data.categories;
-        if (data.services) this.services = data.services;
-        if (data.serviceSkills) this.serviceSkills = data.serviceSkills;
-        if (data.serviceContent) this.serviceContent = data.serviceContent;
-        if (data.serviceFaqs) this.serviceFaqs = data.serviceFaqs;
-        if (data.bookings) this.bookings = data.bookings;
-        if (data.bookingServices) this.bookingServices = data.bookingServices;
-        if (data.jobAssignments) this.jobAssignments = data.jobAssignments;
-        if (data.transactions) this.transactions = data.transactions;
-        if (data.revenueLedger) this.revenueLedger = data.revenueLedger;
-        if (data.reviews) this.reviews = data.reviews;
-        if (data.platformSettings) this.platformSettings = data.platformSettings;
-        console.log('Database loaded from disk.');
+      const { data: fileData, error } = await this.supabase
+        .storage
+        .from('tatku-db')
+        .download('database.json');
+
+      if (error) {
+        console.log('No existing database found in Supabase (or error), starting with seed data.', error.message);
+        return;
       }
+
+      const raw = await fileData.text();
+      const data = JSON.parse(raw);
+      if (data.collectives) this.collectives = data.collectives;
+      if (data.sectors) this.sectors = data.sectors;
+      if (data.units) this.units = data.units;
+      if (data.superUsers) this.superUsers = data.superUsers;
+      if (data.collectiveManagers) this.collectiveManagers = data.collectiveManagers;
+      if (data.unitManagers) this.unitManagers = data.unitManagers;
+      if (data.serviceProviders) this.serviceProviders = data.serviceProviders;
+      if (data.providerUnavailability) this.providerUnavailability = data.providerUnavailability;
+      if (data.skills) this.skills = data.skills;
+      if (data.providerSkills) this.providerSkills = data.providerSkills;
+      if (data.customers) this.customers = data.customers;
+      if (data.carts) this.carts = data.carts;
+      if (data.cartItems) this.cartItems = data.cartItems;
+      if (data.categories) this.categories = data.categories;
+      if (data.services) this.services = data.services;
+      if (data.serviceSkills) this.serviceSkills = data.serviceSkills;
+      if (data.serviceContent) this.serviceContent = data.serviceContent;
+      if (data.serviceFaqs) this.serviceFaqs = data.serviceFaqs;
+      if (data.bookings) this.bookings = data.bookings;
+      if (data.bookingServices) this.bookingServices = data.bookingServices;
+      if (data.jobAssignments) this.jobAssignments = data.jobAssignments;
+      if (data.transactions) this.transactions = data.transactions;
+      if (data.revenueLedger) this.revenueLedger = data.revenueLedger;
+      if (data.reviews) this.reviews = data.reviews;
+      if (data.platformSettings) this.platformSettings = data.platformSettings;
+      console.log('Database loaded from Supabase.');
     } catch (err) {
-      console.error('Failed to load database from disk:', err);
+      console.error('Failed to load database from Supabase:', err);
     }
   }
   collectives: Collective[] = [

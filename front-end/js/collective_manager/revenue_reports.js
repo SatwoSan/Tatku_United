@@ -38,6 +38,9 @@ document.addEventListener("DOMContentLoaded", async function () {
       }
     };
 
+    const isLocal = window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+    const API_BASE_URL = isLocal ? "http://localhost:10000" : "https://tatku-united-api.onrender.com";
+
     // Parallel fetch
     const [
       scopedRevenue,
@@ -45,10 +48,10 @@ document.addEventListener("DOMContentLoaded", async function () {
       servicesData,
       providersData
     ] = await Promise.all([
-      fetchData(`http://localhost:10000/revenue-ledger/my`),
-      fetchData("http://localhost:10000/categories"),
-      fetchData("http://localhost:10000/services"),
-      fetchData("http://localhost:10000/service-providers")
+      fetchData(`${API_BASE_URL}/revenue-ledger/my`),
+      fetchData(`${API_BASE_URL}/categories`),
+      fetchData(`${API_BASE_URL}/services`),
+      fetchData(`${API_BASE_URL}/service-providers`)
     ]);
 
     const ledgerEntries = (scopedRevenue && scopedRevenue.rows) || [];
@@ -333,7 +336,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Auto-refresh every 30 seconds to capture new bookings/completions
     setInterval(async () => {
-      const freshRevenue = await fetchData(`http://localhost:10000/revenue-ledger/my`);
+      const freshRevenue = await fetchData(`${API_BASE_URL}/revenue-ledger/my`);
       if (freshRevenue && freshRevenue.rows) {
         // Only update if data changed
         if (freshRevenue.rows.length !== ledgerEntries.length) {

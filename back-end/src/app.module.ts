@@ -1,5 +1,6 @@
 import { Module, ValidationPipe } from '@nestjs/common';
-import { APP_GUARD, APP_PIPE } from '@nestjs/core';
+import { APP_GUARD, APP_PIPE, APP_INTERCEPTOR } from '@nestjs/core';
+import { PersistenceInterceptor } from './common/interceptors/persistence.interceptor';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { SuperUsersModule } from './modules/super-users/super-users.module';
@@ -61,6 +62,10 @@ import { RolesGuard } from './common/guards/roles.guard';
     {
       provide: APP_PIPE,
       useValue: new ValidationPipe({ whitelist: true, transform: true }),
+    },
+    {
+      provide: APP_INTERCEPTOR,
+      useClass: PersistenceInterceptor,
     },
   ],
 })
